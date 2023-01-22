@@ -3,13 +3,12 @@
       <h1>issueリスト</h1>
       <el-button type="success" @click="getIssues()">issue取得</el-button>
       <el-row :gutter="12">
-        <el-col :span="12" v-for="issue in issues" :key="issue.id">
+        <el-col :span="12"  v-for="( issue, index ) in issues" :key="issue.id">
           <el-card class="box-card" shadow="hover" style="margin: 5px 0;">
             <el-row :gutter="12">
               <el-col :span="21">{{ issue.title }}</el-col>
               <el-col :span="3">
-                <!-- コード1 -->
-                <el-button @click="closeIssue(issue.number)" type="success" icon="el-icon-check" circle></el-button>
+                <el-button @click="closeIssue(index)" type="success" icon="el-icon-check" circle></el-button>
               </el-col>
             </el-row>
           </el-card>
@@ -17,48 +16,47 @@
       </el-row>
     </div>
   </template>
-    
+  
   <script>
-    import axios from 'axios';
-    
-  // Objectiser la base du point de terminaison et l'en-tête de la demande ensemble et l'affecter à une constante
-  const client = axios.create({  //--1
-    baseURL: 'https://api.github.com/repos/diveintocode-corp/vue_seriese_api', //--2
-    headers: { //--3
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type':'application/json',
-      //'Authorization': `token ${process.env.VUE_APP_GITHUB_TOKEN}`
-    },
-  })
-  
-    export default {
-      name: 'IssueList',
-      data() {
-        return {
-          issues: []
-        }
-      },
-      methods: {
-      getIssues() {
-        client.get('/issues')
-          .then((res) => {
-            this.issues = res.data;
-        })
-      },
-      // la méthode nouvellement créée
-      closeIssue(number){
-        client.patch(`/issues/${number}`, // --コード2
-            {
-              state: 'closed'
-            },
-          )
-          .then(() => {
-            this.issues.some((v, i) => { // --コード3
-              if(v.number == number) this.issues.splice(i, 1); // --コード4
-            })
-        })
-      },
+import axios from 'axios';
+
+const client = axios.create({
+  baseURL: `${process.env.VUE_APP_GITHUB_ENDPOINT}`, 
+  headers: {
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type':'application/json',
+    'Authorization': `token ${process.env.VUE_APP_GITHUB_TOKEN}`
+  },
+})
+
+export default {
+  name: ' IssueList',
+  data() {
+    return {
+      issues: []
     }
+  },
+  methods: {
+    getIssues() {
+      client.get('/issues')
+        .then((res) => {
+          this.issues = res.data;
+      })
+    },
+    closeIssue(index){
+      const target = this.issues[index]
+      client.patch(`/issues/${target.number}`,
+          {
+            state: 'closed'
+          },
+        )
+        .then(() => {
+          this.issues.splice(index, 1) 
+      })
+    },
+  },
+  created() {
+    this.getIssues();
   }
-  </script>
-  
+}
+</script>
