@@ -1,8 +1,8 @@
 <template>
     <div>
       <h1>issueリスト</h1>
-      <el-button type="success" @click="getIssues()">issue取得</el-button>
-      <el-row :gutter="12">
+    <el-button type="success" @click="getIssues()">issue取得</el-button>
+    <el-row :gutter="12">
         <el-col :span="12"  v-for="( issue, index ) in issues" :key="issue.id">
           <el-card class="box-card" shadow="hover" style="margin: 5px 0;">
             <el-row :gutter="12">
